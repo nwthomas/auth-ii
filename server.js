@@ -18,9 +18,10 @@ server.get("/", (req, res) => {
 // Registration route for new user
 server.post("/api/register", async (req, res) => {
   const creds = req.body;
-  if (!creds.name || !creds.username || !creds.password) {
+  if (!creds.name || !creds.username || !creds.password || !creds.department) {
     return res.status(406).json({
-      message: "Please include a name, username, and password, and try again."
+      message:
+        "Please include a name, username, department, and password, and try again."
     });
   }
   const hash = bcrypt.hashSync(creds.password, 14);
@@ -36,20 +37,6 @@ server.post("/api/register", async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: "Error. Could not create account." });
-  }
-});
-
-// Initial server.get() route with restricted access
-server.get("/api/restricted/users", restricted, async (req, res) => {
-  try {
-    const users = await db("users").select("id", "username");
-    if (users) {
-      res.status(200).json(users);
-    } else {
-      res.status(404).json({ message: "Error. Could not find any users." });
-    }
-  } catch (error) {
-    res.status(500).json({ message: "Error. Users could not be returned." });
   }
 });
 
@@ -108,7 +95,6 @@ function restricted(req, res, next) {
         res.status(401).json({ message: "You're not authorized." });
       } else {
         req.decodedJwt = decodedToken;
-        console.log(decodedToken);
         next();
       }
     });
@@ -130,10 +116,39 @@ function checkRole(role) {
 
 // Retrieve all users
 server.get("/api/users", restricted, checkRole("Student"), async (req, res) => {
-  const users = await db("users").select("id", "username");
-  res
-    .status(200)
-    .json({ message: "Users retrived successfully from the database.", users });
+  const creds = req.body;
+  const user = await db("users")
+    .where({ username: creds.username })
+    .first();
+  if (user) {
+    const users = await db("users")
+      .where({ department: user.department })
+      .select("id", "username");
+    res
+      .status(200)
+      .json({
+        message: "Users retrived successfully from the database.",
+        users
+      });
+  } else {
+    res
+      .status(404)
+      .json({ message: "There are no other users in that department." });
+  }
+});
+
+// Initial server.get() route with restricted access
+server.get("/api/restricted/users", restricted, async (req, res) => {
+  try {
+    const users = await db("users").select("id", "username");
+    if (users) {
+      res.status(200).json(users);
+    } else {
+      res.status(404).json({ message: "Error. Could not find any users." });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error. Users could not be returned." });
+  }
 });
 
 module.exports = server;

@@ -4,6 +4,7 @@ exports.up = function(knex, Promise) {
     tbl.string("username", 128).notNullable();
     tbl.string("name", 128).notNullable();
     tbl.string("password", 128).notNullable();
+    tbl.string("department", 128).notNullable();
     tbl.unique("username", "uq_user_username");
   });
 };
