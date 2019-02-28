@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import axios from "axios";
 
-export default class Login extends Component {
+export default class Signup extends Component {
   state = {
+    name: "",
     username: "",
-    password: ""
+    password: "",
+    department: ""
   };
   handleChange = e => {
     this.setState({
@@ -12,20 +14,27 @@ export default class Login extends Component {
       [e.target.name]: e.target.value
     });
   };
-  login = e => {
+  signup = e => {
     e.preventDefault();
     const creds = this.state;
     axios
-      .post("http://localhost:7000/api/login", creds)
+      .post("http://localhost:7000/api/register", creds)
       .then(res => {
-        localStorage.setItem("token", res.data.token);
-        this.props.history.push("/users");
+        this.props.history.push("/login");
       })
       .catch(err => console.log(err));
   };
   render() {
     return (
-      <form onSubmit={this.login}>
+      <form onSubmit={this.signup}>
+        <input
+          name="name"
+          placeholder="Name"
+          onChange={this.handleChange}
+          value={this.state.name}
+          autoComplete="off"
+          required
+        />
         <input
           name="username"
           placeholder="Username"
@@ -42,7 +51,15 @@ export default class Login extends Component {
           autoComplete="off"
           required
         />
-        <button type="submit">Login</button>
+        <input
+          name="department"
+          placeholder="Department"
+          onChange={this.handleChange}
+          value={this.state.department}
+          autoComplete="off"
+          required
+        />
+        <button type="submit">Signup</button>
       </form>
     );
   }

@@ -3,6 +3,7 @@ import "./App.css";
 import { NavLink, Route } from "react-router-dom";
 import Login from "./Login/Login";
 import UserList from "./UserList/UserList";
+import Signup from "./Signup/Signup";
 
 class App extends Component {
   logout = e => {
@@ -24,6 +25,7 @@ class App extends Component {
         <section>
           <Route path="/login" component={Login} />
           <Route path="/users" component={UserList} />
+          <Route path="/signup" component={Signup} />
         </section>
       </div>
     );
